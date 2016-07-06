@@ -1,39 +1,49 @@
 'use strict';
 
-const calendar = require('../lib/calendar');
-
-module.exports = (Models, app, authenticate) => {
+module.exports = (db, app, authenticate) => {
 
   app.post('/api/reminder/create', authenticate, (req, res) => {
+    console.log('reminder', req.body);
+
     const reminder = {
       title: req.body.title,
       time: req.body.time,
-      UserEmail: req.body.email
+      reminderActive: Boolean(req.body.reminderActive),
     };
-    console.log('reminder', req.body, reminder);
-
-    if (!reminder.title || !reminder.time  || !reminder.UserEmail) {
+    if (!reminder.title || !reminder.time || !reminder.reminderActive) {
       return res.json({
         success: false,
         message: 'Invalid parameters.',
       });
     }
-    calendar.createEvent(reminder);
-
-
-    db.Reminder.create(reminder).then((createdReminder) => {
-      console.log('sdsdsdsdd created reminder', createdReminder);
-      res.json({
-        success: true,
-        message: 'Successfully added reminder.',
+    const toUTC = new Date(reminder.time);
+    reminder.time = toUTC.getTime() + toUTC.getTimezoneOffset() * 60000; //Convert date to UTC before storing it.
+    db.User.find({
+      where: {
+        accessToken: req.token
+      }
+    }).then((user) => {
+      db.Reminder.create(reminder).then((createdReminder) => {
+        console.log('created reminder', createdReminder);
+        user.addReminder(createdReminder).then(() => {
+          res.json({
+            success: true,
+            message: 'Successfully added reminder.',
+          });
+        });
       });
-    }).catch((error) => console.log('failed to store reminder', error));
+    }).catch((error) => res.json({ success: false, message: error }));
   });
 
   app.get('/api/reminder/list', authenticate, (req, res) => {
-    db.Reminder.findAll()
-    .then((reminders) => {
-      res.json(reminders);
+    db.User.find({
+      where: {
+        accessToken: req.token
+      }
+    }).then((user) => {
+      user.getReminders({ order: [['time', 'DESC']] }).then((reminders) => {
+        res.json(reminders);
+      });
     });
   });
-}
+};

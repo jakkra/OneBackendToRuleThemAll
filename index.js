@@ -1,12 +1,12 @@
-'use strict'
+'use strict';
 
-const express 	= require('express'),
- db 			= require('./models'),
- app 			= express(),
- bodyParser 	= require('body-parser'),
- cal 			= require('./lib/calendar'),
- jwt 			= require('jsonwebtoken');
+const express = require('express'),
+  db 			    = require('./models'),
+  bodyParser 	= require('body-parser'),
+  //cal 			= require('./lib/calendar'),
+  jwt 			  = require('jsonwebtoken');
 
+const app = express();
 
 app.set('port', (process.env.PORT || 5000));
 
@@ -33,12 +33,13 @@ function authenticate(req, res, next) {
   if (token) {
 
     // verifies secret and checks exp
-    jwt.verify(token, process.env.SERVER_SECRET, {ignoreExpiration: true}, function(err, decoded) {      
+    jwt.verify(token, process.env.SERVER_SECRET, { ignoreExpiration: true }, function(err, decoded) {
       if (err) {
-        return res.json({ success: false, message: 'Failed to authenticate token.' });    
+        return res.json({ success: false, message: 'Failed to authenticate token.' });
       } else {
         // if everything is good, save to request for use in other routes
-        req.decoded = decoded;    
+        req.decoded = decoded;
+        req.token = token;
         next();
       }
     });
@@ -46,19 +47,19 @@ function authenticate(req, res, next) {
   } else {
     // if there is no token
     // return an error
-    return res.status(403).send({ 
-        success: false, 
-        message: 'No token provided.' 
+    return res.status(403).send({
+      success: false,
+      message: 'No token provided.',
     });
   }
-};
+}
 
-const userRouter 	= require('./api/User')(db, app, authenticate),
- reminderRouter 	= require('./api/Reminder')(db, app, authenticate);
+require('./api/User')(db, app, authenticate),
+require('./api/Reminder')(db, app, authenticate);
 
 
 db.sequelize.sync().then(function() {
-    console.log('Express server listening on port ' + app.get('port'));
+  console.log('Express server listening on port ' + app.get('port'));
 });
 
 // route to show a random message (GET http://localhost:8080/api/)
@@ -66,3 +67,5 @@ app.get('/api', function(req, res) {
   res.json({ message: 'Welcome to the coolest API on earth!' });
 });
 
+// Notifications
+require('./lib/NotificationHandler')(db, app);

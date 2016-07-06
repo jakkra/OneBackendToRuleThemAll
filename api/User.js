@@ -1,22 +1,22 @@
 'use strict';
-module.exports = (Models, app, authenticate) => {
-  const jwt = require('jsonwebtoken'),
-  bcrypt = require('bcrypt-nodejs');
+
+module.exports = (db, app, authenticate) => {
+  const jwt = require('jsonwebtoken');
+    //bcrypt = require('bcrypt-nodejs');
 
   app.post('/api/user/create', (req, res) => {
-    console.log('request', req.body);
-      const user = {
-        name: req.body.name,
-        email: req.body.email,
-        password: req.body.password,
-      };
+    const user = {
+      name: req.body.name,
+      email: req.body.email,
+      password: req.body.password,
+    };
 
-      if (!user.name || !user.email || !user.email) {
-        return res.json({
-          success: false,
-          message: 'Invalid parameters.',
-        });
-      }
+    if (!user.name || !user.email || !user.email) {
+      return res.json({
+        success: false,
+        message: 'Invalid parameters.',
+      });
+    }
 
     db.User.create(user).then((createdUser) => {
       console.log(createdUser);
@@ -26,15 +26,19 @@ module.exports = (Models, app, authenticate) => {
       });
     }).catch((error) => {
       return res.json({
-          success: false,
-          message: 'Email already exists.',
-        });
+        success: false,
+        message: 'Email already exists.',
+      });
     });
   });
 
-  app.get('/api/user/list', authenticate,  (req, res) => {
-    db.User.findAll().then((users) => {
-      res.json(users);
+  app.get('/api/user/list', authenticate, (req, res) => {
+    db.User.find({
+      where: {
+        accessToken: req.token
+      }
+    }).then((user) => {
+      res.json(user);
     });
   });
 
@@ -46,23 +50,30 @@ module.exports = (Models, app, authenticate) => {
       }
     }).then((user) => {
       // check if password matches
-      if (user.password != req.body.password) {
-        res.json({ success: false, message: 'Authentication failed. Wrong password.' });
+      console.log(user);
+      if (user.password != req.body.password) { // I should hash it :)
+        res.json({
+          success: false,
+          message: 'Authentication failed. Wrong password.'
+        });
       } else {
 
         // if user is found and password is right
         // create a token
-        var token = jwt.sign(req.body.email, process.env.SERVER_SECRET, {
+        const token = jwt.sign(req.body.email, process.env.SERVER_SECRET, {
         });
-
-        // return the information including token as JSON
-        res.json({
-          success: true,
-          message: 'Enjoy your token!',
-          token: token
+        user.accessToken = token;
+        user.save().then(() => {
+          return res.json({
+            success: true,
+            message: 'Enjoy your token!',
+            token: token,
+          });
         });
-      
       }
-    }).catch((error) => res.json({ success: false, message: 'Authentication failed. User not found.' }));
+    }).catch((error) => res.json({
+      success: false,
+      message: 'Authentication failed. User not found.' + error,
+    }));
   });
-}
+};
