@@ -40,7 +40,14 @@ function authenticate(req, res, next) {
         // if everything is good, save to request for use in other routes
         req.decoded = decoded;
         req.token = token;
-        next();
+        db.User.find({
+          where: {
+            accessToken: token
+          }
+        }).then((user) => {
+          req.user = user;
+          next();
+        }).catch((error) => res.json({ success: false, error: 'User not found' }));
       }
     });
 

@@ -18,39 +18,43 @@ module.exports = (db, app, authenticate) => {
       });
     }
 
-    db.User.create(user).then((createdUser) => {
-      console.log(createdUser);
-      res.json({
-        success: true,
-        message: 'Successfully added user.',
-      });
-    }).catch((error) => {
-      return res.json({
-        success: false,
-        message: 'Email already exists.',
-      });
+    db.User.find({ where: { email: req.body.email }}).then((foundUser) => {
+      if (foundUser) {
+        console.log('-------------- found', foundUser);
+        return res.json({
+          success: false,
+          message: 'Email already exists.',
+        });
+      } else {
+        db.User.create(user).then((createdUser) => {
+          console.log(createdUser);
+          res.json({
+            success: true,
+            message: 'Successfully added user.',
+          });
+        }).catch((error) => {
+          return res.json({
+            success: false,
+            message: error,
+          });
+        });
+      }
     });
   });
 
   app.get('/api/user/list', authenticate, (req, res) => {
-    db.User.find({
-      where: {
-        accessToken: req.token
-      }
-    }).then((user) => {
-      res.json(user);
-    });
+    return res.json(req.user);
   });
 
   app.post('/api/user/authenticate', (req, res) => {
     // find the user
-    db.User.find({
+    db.User.findOne({
       where: {
-        email: req.body.email
+        email: req.body.email,
       }
     }).then((user) => {
       // check if password matches
-      console.log(user);
+      console.log('auth user', user);
       if (user.password != req.body.password) { // I should hash it :)
         res.json({
           success: false,
