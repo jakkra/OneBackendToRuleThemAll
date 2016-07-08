@@ -3,8 +3,6 @@
 module.exports = (db, app, authenticate) => {
 
   app.post('/api/reminder/create', authenticate, (req, res) => {
-    console.log('reminder', req.body);
-
     const reminder = {
       title: req.body.title,
       time: req.body.time,
@@ -20,7 +18,6 @@ module.exports = (db, app, authenticate) => {
     reminder.time = toUTC.getTime() + toUTC.getTimezoneOffset() * 60 * 1000; //Convert date to UTC before storing it.
 
     db.Reminder.create(reminder).then((createdReminder) => {
-      console.log('created reminder', createdReminder);
       req.user.addReminder(createdReminder).then(() => {
         res.json({
           success: true,
@@ -31,7 +28,7 @@ module.exports = (db, app, authenticate) => {
   });
 
   app.get('/api/reminder/list', authenticate, (req, res) => {
-    req.user.getReminders({ order: [['time', 'DESC']] }).then((reminders) => {
+    req.user.getReminders({ order: [['time']] }).then((reminders) => {
       res.json(reminders);
     });
   });
@@ -44,7 +41,6 @@ module.exports = (db, app, authenticate) => {
         UserEmail: req.user.email,
       }
     }).then((reminder) => {
-      console.log(reminder);
       if (!reminder) {
         return res.json({
           success: false,
@@ -53,11 +49,11 @@ module.exports = (db, app, authenticate) => {
       }
 
       // Update user if parameters sent
-      reminder.title = req.body.title || reminder.title;
-      reminder.time = req.body.time || reminder.time;
-      reminder.completed = req.body.completed || reminder.completed;
-      reminder.reminderActive = req.body.reminderActive || reminder.reminderActive;
-      reminder.deleted = req.body.deleted || reminder.deleted;
+      reminder.title = (req.body.title !== undefined) ? req.body.title : reminder.title;
+      reminder.time = (req.body.time !== undefined) ? req.body.time : reminder.time;
+      reminder.completed = (req.body.completed !== undefined) ? req.body.completed : reminder.completed;
+      reminder.reminderActive = (req.body.reminderActive !== undefined) ? req.body.reminderActive : reminder.reminderActive;
+      reminder.deleted = (req.body.deleted !== undefined) ? req.body.deleted : reminder.deleted;
 
       reminder.save();
       res.json({

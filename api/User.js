@@ -17,10 +17,9 @@ module.exports = (db, app, authenticate) => {
         message: 'Invalid parameters.',
       });
     }
-
+    console.log(req.body);
     db.User.find({ where: { email: req.body.email }}).then((foundUser) => {
       if (foundUser) {
-        console.log('-------------- found', foundUser);
         return res.json({
           success: false,
           message: 'Email already exists.',
