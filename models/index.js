@@ -24,12 +24,14 @@ global.db = {
   sequelize: sequelize,
   User:      sequelize.import(__dirname + '/User'),
   Reminder:  sequelize.import(__dirname + '/Reminder'),
+  Temperature:  sequelize.import(__dirname + '/Temperature'),
 };
 
 
-//Associations can be defined here. E.g. like this:
 global.db.User.hasMany(global.db.Reminder);
 global.db.Reminder.belongsTo(global.db.User);
 
+global.db.User.hasMany(global.db.Temperature);
+global.db.Temperature.belongsTo(global.db.User);
 
 module.exports = global.db;
