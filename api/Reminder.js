@@ -53,7 +53,7 @@ module.exports = (db, app, authenticate) => {
       }
 
       // Update user if parameters sent
-      reminder.title = req.body.title || reminder.name;
+      reminder.title = req.body.title || reminder.title;
       reminder.time = req.body.time || reminder.time;
       reminder.completed = req.body.completed || reminder.completed;
       reminder.reminderActive = req.body.reminderActive || reminder.reminderActive;
