@@ -79,4 +79,23 @@ module.exports = (db, app, authenticate) => {
       message: 'Authentication failed. User not found.' + error,
     }));
   });
+
+
+app.post('/api/user/device', authenticate, (req, res) => {
+  if (!req.body.deviceToken) {
+    return res.json({
+      success: false,
+      message: 'invalid parameters',
+    });
+  }
+
+  // Update user if parameters sent
+  req.user.deviceToken = (req.body.deviceToken !== undefined) ? req.body.deviceToken : user.deviceToken;
+  req.user.save();
+  res.json({
+    success: true,
+    message: 'Reminder successfully added deviceToken',
+  });
+  });
+
 };

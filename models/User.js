@@ -8,7 +8,7 @@ module.exports = function(sequelize, DataTypes) {
     name: DataTypes.STRING,
     password: DataTypes.STRING,
     accessToken: DataTypes.STRING,
-  }, {
+    deviceToken: DataTypes.STRING,
   });
   return User;
 };
