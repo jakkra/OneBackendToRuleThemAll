@@ -82,6 +82,7 @@ module.exports = (db, app, authenticate) => {
 
 
 app.post('/api/user/device', authenticate, (req, res) => {
+  console.log('---------------', req.body);
   if (!req.body.deviceToken) {
     return res.json({
       success: false,
