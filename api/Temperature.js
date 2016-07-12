@@ -23,7 +23,7 @@ module.exports = (db, app, authenticate) => {
   app.get('/api/temperature', authenticate, (req, res) => {
   	console.log(req.user)
     req.user.getTemperatures({ order: [['createdAt']] }).then((temperatures) => {
-      res.json({ temperatures: temperatures, succes: true });
+      res.json({ temperatures: temperatures, success: true });
     });
   });
 
