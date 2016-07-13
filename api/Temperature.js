@@ -79,7 +79,7 @@ function averageOutTemperatures(temps, count) {
       tempDateTime = new Date(temps[i + j].createdAt).getTime();
       avgTime = (avgTime === 0) ? tempDateTime : (avgTime + tempDateTime) / 2;
     }
-    avgTemp = avgTemp / numToAverage;
+    avgTemp = avgTemp / innerLoopLimit;
     const element = {
       temperature: Math.round(avgTemp * 10) / 10,
       createdAt: new Date(Math.round(avgTime)).toUTCString(),
