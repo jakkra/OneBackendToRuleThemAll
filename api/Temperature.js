@@ -78,13 +78,13 @@ function averageOutTemperatures(temps, count) {
     for (let j = 0; j < numToAverage; j++) {
       avgTemp += parseFloat(temps[i + j].temperature);
       tempDateTime = new Date(temps[i + j].createdAt).getTime();
-      avgTemp = (avgTime === 0) ? tempDateTime : (avgTime + tempDateTime) / 2;
+      avgTime = (avgTime === 0) ? tempDateTime : (avgTime + tempDateTime) / 2;
       console.log('avgTime', avgTime, 'avgTemp', avgTemp);
     }
-    avgTime = avgTime / numToAverage;
+    avgTemp = avgTemp / numToAverage;
     const element = {
       temperature: Math.round(avgTemp * 10) / 10,
-      createdAt: new Date(Math.round(avgTime)),
+      createdAt: new Date(Math.round(avgTime)).toUTCString(),
       UserEmail: temps[0].UserEmail
     };
     console.log('element', element);
