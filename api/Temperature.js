@@ -53,7 +53,7 @@ module.exports = (db, app, authenticate) => {
       }).catch((error) => res.json({ success: false, error: error + ' ' }));
     } else {
       req.user.getTemperatures({ order: [['createdAt']] }).then((temperatures) => {
-        res.json({ temperatures: temperatures, success: true });
+        res.json({ temperatures: averageOutTemperatures(temperatures, 100), success: true });
       });
     }
   });
@@ -72,14 +72,12 @@ function averageOutTemperatures(temps, count) {
 
   for (let i = 0; i < temps.length; i += numToAverage) {
     if (i + numToAverage > temps.length) {
-      console.log(temps.length, i, numToAverage);
       innerLoopLimit = temps.length - i - 2;
     }
     for (let j = 0; j < innerLoopLimit; j++) {
       avgTemp += parseFloat(temps[i + j].temperature);
       tempDateTime = new Date(temps[i + j].createdAt).getTime();
       avgTime = (avgTime === 0) ? tempDateTime : (avgTime + tempDateTime) / 2;
-      console.log('avgTime', avgTime, 'avgTemp', avgTemp);
     }
     avgTemp = avgTemp / numToAverage;
     const element = {
@@ -88,7 +86,6 @@ function averageOutTemperatures(temps, count) {
       UserEmail: temps[0].UserEmail,
       id: i,
     };
-    console.log('element', element);
     result.push(element);
     avgTemp = 0;
     avgTime = 0;
