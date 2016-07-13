@@ -62,8 +62,8 @@ module.exports = (db, app, authenticate) => {
 function averageOutTemperatures(temps, count) {
   const numTemps = temps.length;
   if (numTemps < count) { return temps; }
-  let numToAverage = Math.floor(numTemps / count);
-
+  const numToAverage = Math.floor(numTemps / count);
+  let innerLoopLimit = numToAverage;
   console.log(numTemps, numToAverage);
   let avgTime = 0;
   let avgTemp = 0;
@@ -73,9 +73,9 @@ function averageOutTemperatures(temps, count) {
   for (let i = 0; i < temps.length; i += numToAverage) {
     if (i + numToAverage > temps.length) {
       console.log(temps.length, i, numToAverage);
-      numToAverage = temps.length - i - 1;
+      innerLoopLimit = temps.length - i - 2;
     }
-    for (let j = 0; j < numToAverage; j++) {
+    for (let j = 0; j < innerLoopLimit; j++) {
       avgTemp += parseFloat(temps[i + j].temperature);
       tempDateTime = new Date(temps[i + j].createdAt).getTime();
       avgTime = (avgTime === 0) ? tempDateTime : (avgTime + tempDateTime) / 2;
@@ -85,7 +85,8 @@ function averageOutTemperatures(temps, count) {
     const element = {
       temperature: Math.round(avgTemp * 10) / 10,
       createdAt: new Date(Math.round(avgTime)).toUTCString(),
-      UserEmail: temps[0].UserEmail
+      UserEmail: temps[0].UserEmail,
+      id: i,
     };
     console.log('element', element);
     result.push(element);
