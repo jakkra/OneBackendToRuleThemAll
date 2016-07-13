@@ -64,6 +64,7 @@ function authenticate(req, res, next) {
 require('./api/User')(db, app, authenticate),
 require('./api/Reminder')(db, app, authenticate);
 require('./api/Temperature')(db, app, authenticate);
+require('./api/Light')(db, app, authenticate);
 
 
 db.sequelize.sync().then(function() {
