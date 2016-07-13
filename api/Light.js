@@ -9,19 +9,19 @@ module.exports = (db, app, authenticate) => {
       return req.json({
         success: false,
         error: 'invalid parameters.',
-      })
+      });
     }
     console.log(req.body.url, req.body.params);
-    const command = {
+    /* 'const command = {
       'url' : req.body.url,
       'method' : 'PUT',
       'body' : {
         'on' : false
       }
-    }
+    } */
     const payloadcontent = 'clipmessage=' + JSON.stringify(
-      {"bridgeId": process.env.BRIDGE_ID, "clipCommand": 
-        { "url": req.body.url, "method": "PUT" , "body": req.body.params}
+      {'bridgeId': process.env.BRIDGE_ID, 'clipCommand':
+        { 'url': req.body.url, 'method': 'PUT', 'body': req.body.params}
       }, null, 4);
 
     fetch('https://www.meethue.com/api/sendmessage?token=' + process.env.BRIDGE_ACCESS_TOKEN, {
@@ -32,25 +32,27 @@ module.exports = (db, app, authenticate) => {
       },
       'body': payloadcontent,
     })
-    .then(response => checkStatus(response))
-    .then(json => res.json({success: true, message: 'lights changed'}))
-    .catch(error => res.json({ success: false, error: 'Something went wrong, invalid params most likely' }));
+    .then((response) => checkStatus(response))
+    .then((json) => res.json({success: true, message: 'lights changed'}))
+    .catch((error) => res.json({ success: false, error: 'Something went wrong, invalid params most likely' }));
   });
 
 
   app.get('/api/light', authenticate, (req, res) => {
     console.log('api/light', process.env.BRIDGE_ACCESS_TOKEN, process.env.BRIDGE_ID);
-    fetch('https://www.meethue.com/api/getbridge?token=' + process.env.BRIDGE_ACCESS_TOKEN + '&bridgeId=' + process.env.BRIDGE_ID, {
-      method: 'get',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-    })
-    .then(response => checkStatus(response))
-    .then(response => response.json())
-    .then(json => res.json({ success: true, lights: json.lights, groups: json.groups }))
-    .catch(error => res.json({success: false, error: 'Something went wrong'}));
+    fetch('https://www.meethue.com/api/getbridge?token=' +
+      process.env.BRIDGE_ACCESS_TOKEN + '&bridgeId=' +
+      process.env.BRIDGE_ID, {
+        method: 'get',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+      })
+      .then((response) => checkStatus(response))
+      .then((response) => response.json())
+      .then((json) => res.json({ success: true, lights: json.lights, groups: json.groups }))
+      .catch((error) => res.json({success: false, error: 'Something went wrong'}));
   });
 };
 
