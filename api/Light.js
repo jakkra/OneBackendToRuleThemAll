@@ -13,9 +13,6 @@ module.exports = (db, app, authenticate) => {
     }
     console.log(req.body.url, req.body.params);
     const command = {
-      // '/api/0/' is does not change.
-      // Change 'lights/0/state' to another API address.(remove '/api/<usename>/')
-      // Ex. '/api/0/api', '/api/0/lights', '/api/0/lights/new', '/api/0/lights/<id>', 
       'url' : req.body.url,
       'method' : 'PUT',
       'body' : {
@@ -36,13 +33,14 @@ module.exports = (db, app, authenticate) => {
       'body': payloadcontent,
     })
     .then(response => checkStatus(response))
-    .then(json => req.json({success: true, message: 'lights changed'}))
-    .catch(error => req.json({ success: false, error: 'Something went wrong, invalid params most likely' }));
+    .then(json => res.json({success: true, message: 'lights changed'}))
+    .catch(error => res.json({ success: false, error: 'Something went wrong, invalid params most likely' }));
   });
 
 
   app.get('/api/light', authenticate, (req, res) => {
-    fetch('https://www.meethue.com/api/sendmessage?token=' + process.env.BRIDGE_ACCESS_TOKEN + '&bridgeId=' + process.env.BRIDGE_ID, {
+    console.log('api/light', process.env.BRIDGE_ACCESS_TOKEN, process.env.BRIDGE_ID);
+    fetch('https://www.meethue.com/api/getbridge?token=' + process.env.BRIDGE_ACCESS_TOKEN + '&bridgeId=' + process.env.BRIDGE_ID, {
       method: 'get',
       headers: {
         Accept: 'application/json',
@@ -51,8 +49,8 @@ module.exports = (db, app, authenticate) => {
     })
     .then(response => checkStatus(response))
     .then(response => response.json())
-    .then(json => req.json({success: true, payload: {lights: json.lights, groups: json.groups}}))
-    .catch(error => req.json({success: false, error: 'Something went wrong'}));
+    .then(json => res.json({ success: true, lights: json.lights, groups: json.groups }))
+    .catch(error => res.json({success: false, error: 'Something went wrong'}));
   });
 };
 
@@ -61,6 +59,7 @@ module.exports = (db, app, authenticate) => {
  * @param {Object} response, the json reseived from the server
  */
 function checkStatus(response) {
+  console.log('checkStatus');
   if (response.status === 200) {
     return response;
   }
