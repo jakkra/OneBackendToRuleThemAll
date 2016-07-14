@@ -1,5 +1,7 @@
 'use strict';
 
+var bigInt = require('big-integer');
+
 module.exports = (db, app, authenticate) => {
 
   app.post('/api/temperature', authenticate, (req, res) => {
@@ -64,31 +66,31 @@ function averageOutTemperatures(temps, count) {
   if (numTemps < count) { return temps; }
   const numToAverage = Math.floor(numTemps / count);
   let innerLoopLimit = numToAverage;
-  console.log(numTemps, numToAverage);
-  let avgTime = 0;
+  let avgTime = bigInt();
   let avgTemp = 0;
   const result = [];
-  let tempDateTime = 0;
+  // let tempDateTime = 0;
 
   for (let i = 0; i < temps.length; i += numToAverage) {
     if (i + numToAverage > temps.length) {
       innerLoopLimit = temps.length - i - 2;
     }
     for (let j = 0; j < innerLoopLimit; j++) {
+      avgTime = avgTime.add(new Date(temps[i + j].createdAt).getTime());
       avgTemp += parseFloat(temps[i + j].temperature);
-      tempDateTime = new Date(temps[i + j].createdAt).getTime();
-      avgTime = (avgTime === 0) ? tempDateTime : (avgTime + tempDateTime) / 2;
     }
+
+    avgTime = avgTime.divide(innerLoopLimit);
     avgTemp = avgTemp / innerLoopLimit;
     const element = {
       temperature: Math.round(avgTemp * 10) / 10,
-      createdAt: new Date(Math.round(avgTime)).toUTCString(),
+      createdAt: new Date(avgTime).toUTCString(),
       UserEmail: temps[0].UserEmail,
       id: i,
     };
     result.push(element);
     avgTemp = 0;
-    avgTime = 0;
+    avgTime = bigInt.zero;
   }
 
   return result;

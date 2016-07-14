@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
+    "big-integer": "^1.6.15",
     "body-parser": "^1.15.0",
     "ejs": "2.4.1",
     "express": "4.13.3",
