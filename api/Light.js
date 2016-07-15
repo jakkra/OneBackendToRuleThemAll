@@ -5,13 +5,12 @@ const fetch = require('node-fetch');
 module.exports = (db, app, authenticate) => {
 
   app.post('/api/light', authenticate, (req, res) => {
-    if (!req.body.url && !req.body.params) {
-      return req.json({
+    if (!req.body) {
+      return res.json({
         success: false,
         error: 'invalid parameters.',
       });
     }
-    console.log(req.body.url, req.body.params);
     /* 'const command = {
       'url' : req.body.url,
       'method' : 'PUT',
@@ -19,9 +18,10 @@ module.exports = (db, app, authenticate) => {
         'on' : false
       }
     } */
+    const url = req.body.url;
     const payloadcontent = 'clipmessage=' + JSON.stringify(
       {'bridgeId': process.env.BRIDGE_ID, 'clipCommand':
-        { 'url': req.body.url, 'method': 'PUT', 'body': req.body.params}
+        { 'url': url, 'method': 'PUT', 'body': req.body}
       }, null, 4);
 
     fetch('https://www.meethue.com/api/sendmessage?token=' + process.env.BRIDGE_ACCESS_TOKEN, {
@@ -39,7 +39,6 @@ module.exports = (db, app, authenticate) => {
 
 
   app.get('/api/light', authenticate, (req, res) => {
-    console.log('api/light', process.env.BRIDGE_ACCESS_TOKEN, process.env.BRIDGE_ID);
     fetch('https://www.meethue.com/api/getbridge?token=' +
       process.env.BRIDGE_ACCESS_TOKEN + '&bridgeId=' +
       process.env.BRIDGE_ID, {
@@ -61,7 +60,6 @@ module.exports = (db, app, authenticate) => {
  * @param {Object} response, the json reseived from the server
  */
 function checkStatus(response) {
-  console.log('checkStatus');
   if (response.status === 200) {
     return response;
   }
