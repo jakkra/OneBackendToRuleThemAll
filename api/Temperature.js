@@ -24,10 +24,11 @@ module.exports = (db, app, authenticate) => {
 
   app.get('/api/temperature', authenticate, (req, res) => {
     if (req.query.count && req.query.unit) {
-      let start = new Date();
-      if (req.query.fromDate) {
-        start = new Date(req.query.fromDate);
-        console.log('------------------start date', start);
+      let end = new Date();
+      const start = new Date();
+      if (req.query.endDate) {
+        end = new Date(req.query.endDate);
+        console.log('------------------end date', end);
       }
       switch (req.query.unit) {
         case 'days':
@@ -46,7 +47,7 @@ module.exports = (db, app, authenticate) => {
         where: {
           createdAt: {
             $gt: start,
-            $lt: new Date(),
+            $lt: end,
           },
         },
         order: [['createdAt']],
