@@ -24,7 +24,11 @@ module.exports = (db, app, authenticate) => {
 
   app.get('/api/temperature', authenticate, (req, res) => {
     if (req.query.count && req.query.unit) {
-      const start = new Date();
+      let start = new Date();
+      if (req.query.fromDate) {
+        start = new Date(req.query.fromDate);
+        console.log('------------------start date', start);
+      }
       switch (req.query.unit) {
         case 'days':
           start.setDate(start.getDate() - req.query.count);
