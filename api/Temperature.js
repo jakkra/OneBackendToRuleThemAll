@@ -32,7 +32,7 @@ module.exports = (db, app, authenticate) => {
       }
       switch (req.query.unit) {
         case 'days':
-          start.setDate(start.getDate() - req.query.count);
+          start.setDate(start.getDate() + 1 - req.query.count);
           break;
         case 'hours':
           start.setHours(start.getHours() - req.query.count);
@@ -43,6 +43,8 @@ module.exports = (db, app, authenticate) => {
         default:
           return res.json({ success: false, error: 'Invalid params' });
       }
+      console.log('------------------start date', start);
+
       req.user.getTemperatures({
         where: {
           createdAt: {
