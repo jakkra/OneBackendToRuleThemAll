@@ -33,7 +33,7 @@ module.exports = (db, app, authenticate) => {
       switch (req.query.unit) {
         case 'days':
           start.setDate(start.getDate() + 1 - req.query.count);
-          start.setHours(0);
+          start.setHours(start.getHours() - 24);
           start.setMinutes(0);
           break;
         case 'hours':
