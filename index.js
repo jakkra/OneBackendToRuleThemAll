@@ -3,7 +3,6 @@
 const express = require('express'),
   db 			    = require('./models'),
   bodyParser 	= require('body-parser'),
-  //cal 			= require('./lib/calendar'),
   jwt 			  = require('jsonwebtoken');
 
 const app = express();
@@ -45,8 +44,13 @@ function authenticate(req, res, next) {
             accessToken: token
           }
         }).then((user) => {
-          req.user = user;
-          next();
+          if (user) {
+            req.user = user;
+            next();
+          } else {
+            res.json({ success: false, error: 'unauthorized' })
+          }
+
         }).catch((error) => res.json({ success: false, error: 'User not found' }));
       }
     });
@@ -65,13 +69,13 @@ require('./api/User')(db, app, authenticate),
 require('./api/Reminder')(db, app, authenticate);
 require('./api/Temperature')(db, app, authenticate);
 require('./api/Light')(db, app, authenticate);
+require('./api/Surveillance')(db, app, authenticate);
 
 
 db.sequelize.sync().then(function() {
   console.log('Express server listening on port ' + app.get('port'));
 });
 
-// route to show a random message (GET http://localhost:8080/api/)
 app.get('/api', function(req, res) {
   res.json({ message: 'Welcome to the coolest API on earth!' });
 });

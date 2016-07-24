@@ -9,6 +9,10 @@ module.exports = function(sequelize, DataTypes) {
     password: DataTypes.STRING,
     accessToken: DataTypes.STRING,
     deviceToken: DataTypes.STRING,
+    atHome: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
   });
   return User;
 };

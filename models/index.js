@@ -25,6 +25,7 @@ global.db = {
   User:      sequelize.import(__dirname + '/User'),
   Reminder:  sequelize.import(__dirname + '/Reminder'),
   Temperature:  sequelize.import(__dirname + '/Temperature'),
+  Surveillance:  sequelize.import(__dirname + '/Surveillance'),
 };
 
 
@@ -33,5 +34,14 @@ global.db.Reminder.belongsTo(global.db.User);
 
 global.db.User.hasMany(global.db.Temperature);
 global.db.Temperature.belongsTo(global.db.User);
+
+global.db.User.hasMany(global.db.Surveillance);
+global.db.Surveillance.belongsTo(global.db.User);
+
+
+
+db.sequelize.sync().then(function() {
+  console.log('Synced');
+}).catch((error) => console.log(error));
 
 module.exports = global.db;
