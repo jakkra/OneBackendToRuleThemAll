@@ -13,6 +13,16 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
     },
+  },
+  { 
+    instanceMethods: {
+      toJSON: function () {
+        var values = this.get();
+
+        delete values.password;
+        return values;
+      }
+    }
   });
   return User;
 };

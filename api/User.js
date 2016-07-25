@@ -41,7 +41,7 @@ module.exports = (db, app, authenticate) => {
     });
   });
 
-  app.get('/api/user/list', authenticate, (req, res) => {
+  app.get('/api/user', authenticate, (req, res) => {
     return res.json(req.user);
   });
 
@@ -82,7 +82,6 @@ module.exports = (db, app, authenticate) => {
 
 
   app.post('/api/user/device', authenticate, (req, res) => {
-    console.log('---------------', req.body);
     if (!req.body.deviceToken) {
       return res.json({
         success: false,

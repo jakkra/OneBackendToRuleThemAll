@@ -22,7 +22,6 @@ module.exports = (db, app, authenticate) => {
     }
 
     db.Surveillance.create(log).then((log) => {
-      console.log('----created log----', log);
       req.user.addSurveillance(log).then(() => {
         res.json({
           success: true,
