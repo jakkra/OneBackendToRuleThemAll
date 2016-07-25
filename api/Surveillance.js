@@ -49,4 +49,13 @@ module.exports = (db, app, authenticate) => {
       });
     }).catch((error) => res.json({ success: false, message: error }));
   });
+
+  app.get('/api/surveillance', authenticate, (req, res) => {
+    console.log(req.user);
+    req.user.getSurveillances({ order: [['createdAt']] })
+    .then((logs) => {
+      res.json({ success: true, logs: logs })
+    })
+    .catch((error) => res.json({ success: false, error: error }));
+  });
 };
