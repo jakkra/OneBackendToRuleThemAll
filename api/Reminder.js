@@ -8,15 +8,17 @@ module.exports = (db, app, authenticate) => {
       time: req.body.time,
       reminderActive: Boolean(req.body.reminderActive),
     };
-    if (!reminder.title || !reminder.time || !reminder.reminderActive) {
+    if (!reminder.title || !reminder.reminderActive) {
       return res.json({
         success: false,
         message: 'Invalid parameters.',
       });
     }
-    const toUTC = new Date(reminder.time);
-    reminder.time = toUTC.getTime() + toUTC.getTimezoneOffset() * 60 * 1000; //Convert date to UTC before storing it.
-
+    if (reminder.time) {
+      const toUTC = new Date(reminder.time);
+      reminder.time = toUTC.getTime() + toUTC.getTimezoneOffset() * 60 * 1000; //Convert date to UTC before storing it.
+    }
+    
     db.Reminder.create(reminder).then((createdReminder) => {
       req.user.addReminder(createdReminder).then(() => {
         res.json({
