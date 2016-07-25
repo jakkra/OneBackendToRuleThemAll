@@ -57,11 +57,11 @@ module.exports = (db, app, authenticate) => {
         where: {
           wasAtHome: wasAtHome,
         },
-        order: [['createdAt']]
+        order: [['createdAt', 'DESC']]
       }
     } else {
       filter = { 
-        order: [['createdAt']]
+        order: [['createdAt', 'DESC']]
       }
     }
     req.user.getSurveillances(filter)
