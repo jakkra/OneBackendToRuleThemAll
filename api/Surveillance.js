@@ -35,7 +35,6 @@ module.exports = (db, app, authenticate) => {
             data: {
               type: 'surveillance',
               message: 'Motion detected at home',
-              //collapseKey: 1,
             }
           });
           sender.send(message, { to: req.user.deviceToken }, function(err, response) {
@@ -51,8 +50,21 @@ module.exports = (db, app, authenticate) => {
   });
 
   app.get('/api/surveillance', authenticate, (req, res) => {
-    console.log(req.user);
-    req.user.getSurveillances({ order: [['createdAt']] })
+    let filter;
+    if (req.query.wasAtHome) {
+      const wasAtHome = req.query.wasAtHome === 'true' ? true : false;
+      filter = { 
+        where: {
+          wasAtHome: wasAtHome,
+        },
+        order: [['createdAt']]
+      }
+    } else {
+      filter = { 
+        order: [['createdAt']]
+      }
+    }
+    req.user.getSurveillances(filter)
     .then((logs) => {
       res.json({ success: true, logs: logs })
     })
