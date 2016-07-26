@@ -11,8 +11,17 @@ module.exports = (db, app, authenticate) => {
         message: 'Invalid parameters.',
       });
     }
+    let log;
+    if (req.body.name) {
+      log = {
+        temperature: req.body.temperature,
+        name: req.body.name
+      }
+    } else {
+      log = {temperature: req.body.temperature}
+    }
 
-    db.Temperature.create({temperature: req.body.temperature}).then((createdTemperature) => {
+    db.Temperature.create(log).then((createdTemperature) => {
       req.user.addTemperature(createdTemperature).then(() => {
         res.json({
           success: true,
