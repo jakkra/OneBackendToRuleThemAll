@@ -16,9 +16,9 @@ module.exports = (db, app, authenticate) => {
       log = {
         temperature: req.body.temperature,
         name: req.body.name
-      }
+      };
     } else {
-      log = {temperature: req.body.temperature}
+      log = { temperature: req.body.temperature };
     }
 
     db.Temperature.create(log).then((createdTemperature) => {
@@ -36,7 +36,6 @@ module.exports = (db, app, authenticate) => {
       let end = new Date();
       if (req.query.endDate) {
         end = new Date(req.query.endDate);
-        console.log('------------------end date', end);
       }
       const start = new Date(end);
       switch (req.query.unit) {
@@ -53,7 +52,6 @@ module.exports = (db, app, authenticate) => {
         default:
           return res.json({ success: false, error: 'Invalid params' });
       }
-      console.log('------------------start date', start);
 
       req.user.getTemperatures({
         where: {

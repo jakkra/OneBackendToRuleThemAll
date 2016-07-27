@@ -48,7 +48,7 @@ function authenticate(req, res, next) {
             req.user = user;
             next();
           } else {
-            res.json({ success: false, error: 'unauthorized' })
+            res.json({ success: false, error: 'unauthorized' });
           }
 
         }).catch((error) => res.json({ success: false, error: 'User not found' }));

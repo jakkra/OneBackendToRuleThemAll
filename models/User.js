@@ -14,15 +14,15 @@ module.exports = function(sequelize, DataTypes) {
       defaultValue: true,
     },
   },
-  { 
-    instanceMethods: {
-      toJSON: function () {
-        var values = this.get();
+    {
+      instanceMethods: {
+        toJSON: function() {
+          var values = this.get();
 
-        delete values.password;
-        return values;
+          delete values.password;
+          return values;
+        }
       }
-    }
-  });
+    });
   return User;
 };

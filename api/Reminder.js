@@ -18,7 +18,7 @@ module.exports = (db, app, authenticate) => {
       const toUTC = new Date(reminder.time);
       reminder.time = toUTC.getTime() + toUTC.getTimezoneOffset() * 60 * 1000; //Convert date to UTC before storing it.
     }
-    
+
     db.Reminder.create(reminder).then((createdReminder) => {
       req.user.addReminder(createdReminder).then(() => {
         res.json({

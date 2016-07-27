@@ -90,7 +90,7 @@ module.exports = (db, app, authenticate) => {
     }
 
     // Update user if parameters sent
-    req.user.deviceToken = (req.body.deviceToken !== undefined) ? req.body.deviceToken : user.deviceToken;
+    req.user.deviceToken = (req.body.deviceToken !== undefined) ? req.body.deviceToken : req.user.deviceToken;
     req.user.save();
     res.json({
       success: true,

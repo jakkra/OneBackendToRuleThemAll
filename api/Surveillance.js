@@ -2,8 +2,6 @@
 
 const gcm = require('node-gcm');
 
-const minutes = 1, interval = minutes * 60 * 1000;
-let lastCheck = null;
 const sender = new gcm.Sender(process.env.SERVER_GCM_API_KEY);
 
 module.exports = (db, app, authenticate) => {
@@ -15,11 +13,10 @@ module.exports = (db, app, authenticate) => {
         error: 'Invalid parameters.',
       });
     }
-    console.log(req.user.atHome, req.body.time)
     const log = {
       wasAtHome: req.user.atHome,
       time: req.body.time,
-    }
+    };
 
     db.Surveillance.create(log).then((log) => {
       req.user.addSurveillance(log).then(() => {
@@ -52,20 +49,20 @@ module.exports = (db, app, authenticate) => {
     let filter;
     if (req.query.wasAtHome) {
       const wasAtHome = req.query.wasAtHome === 'true' ? true : false;
-      filter = { 
+      filter = {
         where: {
           wasAtHome: wasAtHome,
         },
         order: [['createdAt', 'DESC']]
-      }
+      };
     } else {
-      filter = { 
+      filter = {
         order: [['createdAt', 'DESC']]
-      }
+      };
     }
     req.user.getSurveillances(filter)
     .then((logs) => {
-      res.json({ success: true, logs: logs })
+      res.json({ success: true, logs: logs });
     })
     .catch((error) => res.json({ success: false, error: error }));
   });
