@@ -2,7 +2,7 @@
 
 module.exports = (db, app, authenticate) => {
   const jwt = require('jsonwebtoken');
-    //bcrypt = require('bcrypt-nodejs');
+  const bcrypt = require('bcrypt-nodejs');
 
   app.post('/api/user/create', (req, res) => {
     const user = {
@@ -11,13 +11,12 @@ module.exports = (db, app, authenticate) => {
       password: req.body.password,
     };
 
-    if (!user.name || !user.email || !user.email) {
+    if (!user.name || !user.email || !user.password) {
       return res.json({
         success: false,
         message: 'Invalid parameters.',
       });
     }
-    console.log(req.body);
     db.User.find({ where: { email: req.body.email }}).then((foundUser) => {
       if (foundUser) {
         return res.json({
@@ -25,16 +24,27 @@ module.exports = (db, app, authenticate) => {
           message: 'Email already exists.',
         });
       } else {
-        db.User.create(user).then((createdUser) => {
-          console.log(createdUser);
-          res.json({
-            success: true,
-            message: 'Successfully added user.',
-          });
-        }).catch((error) => {
-          return res.json({
-            success: false,
-            message: error,
+        bcrypt.genSalt(10, (err, salt) => {
+          bcrypt.hash(user.password, salt, null, (err, hash) => {
+            if (!err) {
+              user.password = hash;
+              db.User.create(user).then((createdUser) => {
+                res.json({
+                  success: true,
+                  message: 'Successfully added user.',
+                });
+              }).catch((error) => {
+                return res.json({
+                  success: false,
+                  message: error,
+                });
+              });
+            } else {
+              return res.json({
+                success: false,
+                message: err,
+              });
+            }
           });
         });
       }
@@ -46,6 +56,12 @@ module.exports = (db, app, authenticate) => {
   });
 
   app.post('/api/user/authenticate', (req, res) => {
+    if (!req.body.email || !req.body.password) {
+      return res.json({
+        success: false,
+        message: 'missing fields',
+      });
+    }
     // find the user
     db.User.findOne({
       where: {
@@ -53,27 +69,27 @@ module.exports = (db, app, authenticate) => {
       }
     }).then((user) => {
       // check if password matches
-      console.log('auth user', user);
-      if (user.password != req.body.password) { // I should hash it :)
-        res.json({
-          success: false,
-          message: 'Authentication failed. Wrong password.'
-        });
-      } else {
-
-        // if user is found and password is right
-        // create a token
-        const token = jwt.sign(req.body.email, process.env.SERVER_SECRET, {
-        });
-        user.accessToken = token;
-        user.save().then(() => {
+      bcrypt.compare(req.body.password, user.password, function(err, result) {
+        if (result === false) {
           return res.json({
-            success: true,
-            message: 'Enjoy your token!',
-            token: token,
+            success: false,
+            message: 'Authentication failed. Wrong password.'
           });
-        });
-      }
+        } else {
+          // if user is found and password is right
+          // create a token
+          const token = jwt.sign(req.body.email, process.env.SERVER_SECRET, {
+          });
+          user.accessToken = token;
+          user.save().then(() => {
+            return res.json({
+              success: true,
+              message: 'Enjoy your token!',
+              token: token,
+            });
+          });
+        }
+      });
     }).catch((error) => res.json({
       success: false,
       message: 'Authentication failed. User not found.' + error,
