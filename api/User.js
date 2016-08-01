@@ -115,7 +115,7 @@ module.exports = (db, app, authenticate) => {
   });
 
   app.put('/api/user/edit', authenticate, (req, res) => {
-    console.log('----------------------/api/user/edit'. req.body.atHome);
+    console.log('----------------------/api/user/edit');
     console.log(req.body);
 
     // Update user if parameters sent
