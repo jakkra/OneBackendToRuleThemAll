@@ -31,14 +31,12 @@ function authenticate(req, res, next) {
   // decode token
   if (token) {
 
-    // verifies secret and checks exp
+    // verifies secret, ignores expiration for now.
     jwt.verify(token, process.env.SERVER_SECRET, { ignoreExpiration: true }, function(err, decoded) {
       if (err) {
         console.log('error authenticate', err);
         return res.json({ success: false, message: 'Failed to authenticate token.' });
       } else {
-        console.log('authenticate success');
-
         // if everything is good, save to request for use in other routes
         req.decoded = decoded;
         req.token = token;

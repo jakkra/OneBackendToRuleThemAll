@@ -4,6 +4,19 @@ var bigInt = require('big-integer');
 
 module.exports = (db, app, authenticate) => {
 
+   /**
+   * @api {post} /api/temperature Create a temperature logging.
+   * @apiGroup Temperature
+   * @apiDescription
+   * Creates a temperature log.
+   *
+   * Possible errorcodes:
+   * @apiParam {String} temperature The temperature to store.
+   * @apiParam {String} [name] The tag on this temperature logging, needed if to separate tempeartures if more than one source.
+   * @apiUse successObj
+   * @apiUse errorObj
+   * @apiSuccess {Object} Containing success or failure.
+   */
   app.post('/api/temperature', authenticate, (req, res) => {
     if (!req.body.temperature) {
       return res.json({
@@ -31,6 +44,31 @@ module.exports = (db, app, authenticate) => {
     }).catch((error) => res.json({ success: false, message: error }));
   });
 
+   /**
+   * @api {get} /api/temperature List temperature logsgings.
+   * @apiGroup Temperature
+   * @apiDescription
+   * Lists temperature loggings. This endpoint lets you specify
+   * how many results over a given time to return. The result will
+   * reduce the temperatures by grouping them and calculate the average.
+   *
+   * Example: Get all temperatures the last week.
+   * { count: 7, unit: 'days' }
+   *
+   * Example: Get all temperatures between 2016-08-02 09:00:+00 and 2016-08-02 11:00+00
+   * { endDate: 2016-08-02 11:00+00, count: 2, unit: 'hours' }
+   *
+   * Note, if only one of { count, unit } is specified, the filter will be ignored, all temperatures will be returned.
+   *
+   * Possible errorcodes:
+   * @apiParam {Integer} [limit] The number temperatures to return.
+   * @apiParam {String} [endDate=now] The date of the last temperature logging.
+   * @apiParam {String} [unit] The unit to work with. One of: { days, hours, minutes }
+   * @apiParam {String} [count] The number of units backwards from endDate.
+   * @apiUse successObj
+   * @apiUse errorObj
+   * @apiSuccess {Array} List of tempareture loggings.
+   */
   app.get('/api/temperature', authenticate, (req, res) => {
     if (req.query.count && req.query.unit) {
       let end = new Date();
@@ -75,7 +113,14 @@ module.exports = (db, app, authenticate) => {
     }
   });
 };
-
+ /**
+ * Groups temperatures and calculates an average of each group. The loss of accuracy
+ * will depend on the size of count compared to the length of the data.
+ *
+ * @param {Array} temps List of temperatures.
+ * @param {String} count The number of themperatures to reduce the original data to.
+ * @return {Array} List of temperatures.
+ */
 function averageOutTemperatures(temps, count) {
   const numTemps = temps.length;
   if (numTemps < count) { return temps; }

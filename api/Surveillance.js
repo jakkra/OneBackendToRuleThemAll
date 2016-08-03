@@ -6,6 +6,19 @@ const sender = new gcm.Sender(process.env.SERVER_GCM_API_KEY);
 
 module.exports = (db, app, authenticate) => {
 
+
+  /**
+   * @api {post} /api/surveillance Log movement.
+   * @apiGroup Surveillance
+   * @apiDescription
+   * Logs movements/motion detected.
+   *
+   * Possible errorcodes:
+   * @apiParam {String} time The time the motion occured.
+   * @apiUse successObj
+   * @apiUse errorObj
+   * @apiSuccess {Object} Conatining success or failure.
+   */
   app.post('/api/surveillance', authenticate, (req, res) => {
     if (!req.body.time) {
       return res.json({
@@ -45,6 +58,18 @@ module.exports = (db, app, authenticate) => {
     }).catch((error) => res.json({ success: false, message: error }));
   });
 
+  /**
+   * @api {get} /api/surveillance List all motion detected logs.
+   * @apiGroup Surveillance
+   * @apiDescription
+   * Lists all logs of motion detected.
+   *
+   * Possible errorcodes:
+   * @apiParam {Bool} wasAtHome If the result should contain logs when the user was/wasn't at home.
+   * @apiUse successObj
+   * @apiUse errorObj
+   * @apiSuccess {Array} List of motion logs.
+   */
   app.get('/api/surveillance', authenticate, (req, res) => {
     let filter;
     if (req.query.wasAtHome) {

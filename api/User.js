@@ -4,6 +4,20 @@ module.exports = (db, app, authenticate) => {
   const jwt = require('jsonwebtoken');
   const bcrypt = require('bcrypt-nodejs');
 
+  /**
+   * @api {post} /api/user/create Create a new user.
+   * @apiGroup User
+   * @apiDescription
+   * Creates a new user.
+   *
+   * Possible errorcodes:
+   * @apiParam {String} email The user email.
+   * @apiParam {String} name The name of the user.
+   * @apiParam {String} password The passowrd.
+   * @apiUse successObj
+   * @apiUse errorObj
+   * @apiSuccess {Object} Containing success or failure.
+   */
   app.post('/api/user/create', (req, res) => {
     const user = {
       name: req.body.name,
@@ -51,10 +65,34 @@ module.exports = (db, app, authenticate) => {
     });
   });
 
+   /**
+   * @api {get} /api/user List the user.
+   * @apiGroup User
+   * @apiDescription
+   * Creates a new user.
+   *
+   * Possible errorcodes:
+   * @apiUse successObj
+   * @apiUse errorObj
+   * @apiSuccess {User} The user.
+   */
   app.get('/api/user', authenticate, (req, res) => {
     return res.json(req.user);
   });
 
+   /**
+   * @api {post} /api/user/authenticate Authenticate a user.
+   * @apiGroup User
+   * @apiDescription
+   * Authenitcates a user.
+   *
+   * Possible errorcodes:
+   * @apiParam {String} email The user email.
+   * @apiParam {String} password The passowrd.
+   * @apiUse successObj
+   * @apiUse errorObj
+   * @apiSuccess {Object} token the access token to use when querying the server.
+   */
   app.post('/api/user/authenticate', (req, res) => {
     if (!req.body.email || !req.body.password) {
       return res.json({
@@ -96,8 +134,20 @@ module.exports = (db, app, authenticate) => {
     }));
   });
 
-
-  app.post('/api/user/device', authenticate, (req, res) => {
+   /**
+   * @api {post} /api/user/device Store the device token of the users Android phone.
+   * @apiGroup User
+   * @apiDescription
+   * Stores a device token which connects the user to a Android phone.
+   * used when sending push notifications.
+   *
+   * Possible errorcodes:
+   * @apiParam {String} deviceToken The device token to connect to the user.
+   * @apiUse successObj
+   * @apiUse errorObj
+   * @apiSuccess {Object} Containing success or failure.
+   */
+  app.post('/api/user/device', authenticate, (req, res) => { // TODO change to put or combine with edit user
     if (!req.body.deviceToken) {
       return res.json({
         success: false,
@@ -114,10 +164,21 @@ module.exports = (db, app, authenticate) => {
     });
   });
 
+   /**
+   * @api {put} /api/user/edit Edit an existing user.
+   * @apiGroup User
+   * @apiDescription
+   * Edits an existing users attributes.
+   *
+   * Possible errorcodes:
+   * @apiParam {String} [name] The name of the user.
+   * @apiParam {String} [password] The password.
+   * @apiParam {bool} [atHome] Set if the user is at home or not.
+   * @apiUse successObj
+   * @apiUse errorObj
+   * @apiSuccess {Object} Containing success or failure.
+   */
   app.put('/api/user/edit', authenticate, (req, res) => {
-    console.log('----------------------/api/user/edit');
-    console.log(req.body);
-
     // Update user if parameters sent
     req.user.name = (req.body.name !== undefined) ? req.body.name : req.user.name;
     req.user.password = (req.body.password !== undefined) ? req.body.password : req.user.password;
@@ -129,6 +190,5 @@ module.exports = (db, app, authenticate) => {
       message: 'User successfully updated',
     });
   });
-
 
 };
