@@ -38,9 +38,7 @@ global.db.Temperature.belongsTo(global.db.User);
 global.db.User.hasMany(global.db.Surveillance);
 global.db.Surveillance.belongsTo(global.db.User);
 
-
-
-db.sequelize.sync().then(function() {
+global.db.sequelize.sync().then(function() {
   console.log('Synced');
 }).catch((error) => console.log(error));
 
