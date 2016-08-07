@@ -2,6 +2,9 @@
 
 const fetch = require('node-fetch');
 
+  /**
+   * @apiDefine Light Lights
+   */
 module.exports = (db, app, authenticate) => {
 
   /**
@@ -12,9 +15,7 @@ module.exports = (db, app, authenticate) => {
    *
    * @apiParam {String} url The url to philips hue servers.
    * @apiParam {Object} body The payload passed on to Philips hue server.
-   * @apiUse successObj
-   * @apiUse errorObj
-   * @apiSuccess {Object} containing success or failure
+   * @apiSuccess {Bool} success Containing success or failure.
    */
   app.post('/api/light', authenticate, (req, res) => {
     if (!req.body) {
@@ -51,15 +52,12 @@ module.exports = (db, app, authenticate) => {
 
 
    /**
-   * @api {get} /api/light/ get the state of your Philips Hue.
+   * @api {get} /api/light/ Get the state of your Philips Hue.
    * @apiGroup Light
    * @apiDescription
    * Lists the state of all lights and groups.
    *
-   * Possible errorcodes:
-   * @apiUse successObj
-   * @apiUse errorObj
-   * @apiSuccess {Object} {lights, groups} containing the lights ad groups states.
+   * @apiSuccess {Object} lights Lights and groups containing the lights and groups states.
    */
   app.get('/api/light', authenticate, (req, res) => {
     fetch('https://www.meethue.com/api/getbridge?token=' +
@@ -81,7 +79,7 @@ module.exports = (db, app, authenticate) => {
 /**
  * Checks if a response was successful, throws an error if it's not.
  * @param {Object} response, the json received from the server.
- * *return {Object} if no error, the same object passed as argument.
+ * *return {Object} response if no error, the same object passed as argument.
  */
 function checkStatus(response) {
   if (response.status === 200) {

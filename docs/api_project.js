@@ -1,0 +1,1 @@
+define({  "name": "OneBackendToRuleThemAll",  "version": "0.2.5",  "description": "A home automation server",  "sampleUrl": false,  "apidoc": "0.2.0",  "generator": {    "name": "apidoc",    "time": "2016-08-07T11:11:32.782Z",    "url": "http://apidocjs.com",    "version": "0.16.1"  }});

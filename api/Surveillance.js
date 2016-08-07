@@ -4,6 +4,9 @@ const gcm = require('node-gcm');
 
 const sender = new gcm.Sender(process.env.SERVER_GCM_API_KEY);
 
+  /**
+   * @apiDefine Surveillance Surveillance
+   */
 module.exports = (db, app, authenticate) => {
 
 
@@ -15,9 +18,7 @@ module.exports = (db, app, authenticate) => {
    *
    * Possible errorcodes:
    * @apiParam {String} time The time the motion occured.
-   * @apiUse successObj
-   * @apiUse errorObj
-   * @apiSuccess {Object} Conatining success or failure.
+   * @apiSuccess {Bool} success Containing success or failure.
    */
   app.post('/api/surveillance', authenticate, (req, res) => {
     if (!req.body.time) {
@@ -66,9 +67,7 @@ module.exports = (db, app, authenticate) => {
    *
    * Possible errorcodes:
    * @apiParam {Bool} wasAtHome If the result should contain logs when the user was/wasn't at home.
-   * @apiUse successObj
-   * @apiUse errorObj
-   * @apiSuccess {Array} List of motion logs.
+   * @apiSuccess {Array} logs List of motion logs.
    */
   app.get('/api/surveillance', authenticate, (req, res) => {
     let filter;

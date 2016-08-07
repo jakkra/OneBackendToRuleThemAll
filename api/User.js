@@ -1,5 +1,9 @@
 'use strict';
 
+
+  /**
+   * @apiDefine User User
+   */
 module.exports = (db, app, authenticate) => {
   const jwt = require('jsonwebtoken');
   const bcrypt = require('bcrypt-nodejs');
@@ -14,9 +18,7 @@ module.exports = (db, app, authenticate) => {
    * @apiParam {String} email The user email.
    * @apiParam {String} name The name of the user.
    * @apiParam {String} password The passowrd.
-   * @apiUse successObj
-   * @apiUse errorObj
-   * @apiSuccess {Object} Containing success or failure.
+   * @apiSuccess {Bool} success Containing success or failure.
    */
   app.post('/api/user/create', (req, res) => {
     const user = {
@@ -72,9 +74,7 @@ module.exports = (db, app, authenticate) => {
    * Creates a new user.
    *
    * Possible errorcodes:
-   * @apiUse successObj
-   * @apiUse errorObj
-   * @apiSuccess {User} The user.
+   * @apiSuccess {User} user The user.
    */
   app.get('/api/user', authenticate, (req, res) => {
     return res.json(req.user);
@@ -89,9 +89,7 @@ module.exports = (db, app, authenticate) => {
    * Possible errorcodes:
    * @apiParam {String} email The user email.
    * @apiParam {String} password The passowrd.
-   * @apiUse successObj
-   * @apiUse errorObj
-   * @apiSuccess {Object} token the access token to use when querying the server.
+   * @apiSuccess {Object} token The access token to use when querying the server.
    */
   app.post('/api/user/authenticate', (req, res) => {
     if (!req.body.email || !req.body.password) {
@@ -135,17 +133,15 @@ module.exports = (db, app, authenticate) => {
   });
 
    /**
-   * @api {post} /api/user/device Store the device token of the users Android phone.
+   * @api {post} /api/user/device Store device token.
    * @apiGroup User
    * @apiDescription
    * Stores a device token which connects the user to a Android phone.
-   * used when sending push notifications.
+   * Used when sending push notifications.
    *
    * Possible errorcodes:
    * @apiParam {String} deviceToken The device token to connect to the user.
-   * @apiUse successObj
-   * @apiUse errorObj
-   * @apiSuccess {Object} Containing success or failure.
+   * @apiSuccess {Bool} success Containing success or failure.
    */
   app.post('/api/user/device', authenticate, (req, res) => { // TODO change to put or combine with edit user
     if (!req.body.deviceToken) {
@@ -174,9 +170,7 @@ module.exports = (db, app, authenticate) => {
    * @apiParam {String} [name] The name of the user.
    * @apiParam {String} [password] The password.
    * @apiParam {bool} [atHome] Set if the user is at home or not.
-   * @apiUse successObj
-   * @apiUse errorObj
-   * @apiSuccess {Object} Containing success or failure.
+   * @apiSuccess {Bool} success Containing success or failure.
    */
   app.put('/api/user/edit', authenticate, (req, res) => {
     // Update user if parameters sent

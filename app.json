@@ -1,7 +1,7 @@
 {
-  "name": "NodeReminder",
-  "description": "A reminder app",
-  "repository": "https://github.com/jakkra/NodeReminder",
-  "keywords": ["node", "express", "static", "Reminder"],
+  "name": "OneBackendToRuleThemAll",
+  "description": "A home automation server",
+  "repository": "https://github.com/jakkra/OneBackendToRuleThemAll ",
+  "keywords": ["node", "express", "static", "Reminder", "Home automation", "Home monitoring"],
   "image": "heroku/nodejs"
 }

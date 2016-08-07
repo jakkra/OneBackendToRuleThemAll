@@ -2,6 +2,9 @@
 
 var bigInt = require('big-integer');
 
+  /**
+   * @apiDefine Temperature Temperatures
+   */
 module.exports = (db, app, authenticate) => {
 
    /**
@@ -9,13 +12,10 @@ module.exports = (db, app, authenticate) => {
    * @apiGroup Temperature
    * @apiDescription
    * Creates a temperature log.
-   *
    * Possible errorcodes:
    * @apiParam {String} temperature The temperature to store.
    * @apiParam {String} [name] The tag on this temperature logging, needed if to separate tempeartures if more than one source.
-   * @apiUse successObj
-   * @apiUse errorObj
-   * @apiSuccess {Object} Containing success or failure.
+   * @apiSuccess {Bool} success Containing success or failure.
    */
   app.post('/api/temperature', authenticate, (req, res) => {
     if (!req.body.temperature) {
@@ -65,9 +65,7 @@ module.exports = (db, app, authenticate) => {
    * @apiParam {String} [endDate=now] The date of the last temperature logging.
    * @apiParam {String} [unit] The unit to work with. One of: { days, hours, minutes }
    * @apiParam {String} [count] The number of units backwards from endDate.
-   * @apiUse successObj
-   * @apiUse errorObj
-   * @apiSuccess {Array} List of tempareture loggings.
+   * @apiSuccess {Array} temperatures List of tempareture loggings.
    */
   app.get('/api/temperature', authenticate, (req, res) => {
     if (req.query.count && req.query.unit) {
@@ -119,7 +117,7 @@ module.exports = (db, app, authenticate) => {
  *
  * @param {Array} temps List of temperatures.
  * @param {String} count The number of themperatures to reduce the original data to.
- * @return {Array} List of temperatures.
+ * @return {Array} temperature List of temperatures.
  */
 function averageOutTemperatures(temps, count) {
   const numTemps = temps.length;

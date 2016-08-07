@@ -1,7 +1,7 @@
 {
-  "name": "NodeReminder",
+  "name": "OneBackendToRuleThemAll",
   "version": "0.2.5",
-  "description": "Node reminder backend",
+  "description": "A home automation server",
   "engines": {
     "node": "5.9.1"
   },
@@ -31,17 +31,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/heroku/node-js-getting-started.git"
+    "url": "git+https://github.com/jakkra/OneBackendToRuleThemAll"
   },
   "keywords": [
     "node",
     "heroku",
     "express"
   ],
-  "license": "MIT",
+  "license": "Apache",
   "bugs": {
-    "url": "https://github.com/heroku/node-js-getting-started/issues"
+    "url": "https://github.com/jakkra/OneBackendToRuleThemAll/issues"
   },
-  "homepage": "https://github.com/heroku/node-js-getting-started#readme",
-  "author": ""
+  "homepage": "https://github.com/jakkra/OneBackendToRuleThemAll",
+  "author": "Jakob Krantz"
 }
