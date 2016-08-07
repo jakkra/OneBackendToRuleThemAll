@@ -1,4 +1,4 @@
-# All ine one backend
+# All in one backend
 
 Backend for my home automation and monitoring.
 
