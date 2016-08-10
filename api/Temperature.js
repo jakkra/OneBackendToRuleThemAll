@@ -110,7 +110,35 @@ module.exports = (db, app, authenticate) => {
       });
     }
   });
+
+  /**
+   * @api {get} /api/temperature/latest Get the latest temperature.
+   * @apiGroup Temperature
+   * @apiDescription
+   * Get the latest temperature logging for one sources.
+   * @apiParam {String} source The source key for the temperature source.
+   * @apiSuccess {Array} temperatures Array containing the latest logging for the source. 
+   */
+  app.get('/api/temperature/latest', authenticate, (req, res) => {
+    if (!req.query.source) {
+      return res.json({
+        success: false,
+        message: 'Missing parameter source.',
+      });
+    }
+    req.user.getTemperatures().findOne({
+        where: {
+          name: req.query.source,
+        },
+        order: [['createdAt']],
+      }).then((temperature) => {
+        console.log(temperature);
+        res.json({ temperature: temperature, success: true });
+      }).catch((error) => res.json({ success: false, error: error + ' ' }));
+  });
 };
+
+
  /**
  * Groups temperatures and calculates an average of each group. The loss of accuracy
  * will depend on the size of count compared to the length of the data.
