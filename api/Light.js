@@ -11,7 +11,7 @@ module.exports = (db, app, authenticate) => {
    * @api {post} /api/light/ Handle hue lights.
    * @apiGroup Light
    * @apiDescription
-   * See Philips Hue light API for usage, this endpoint jut passes the params to the hue server.
+   * See Philips Hue light API for usage, this endpoint just passes the params to the hue server.
    *
    * @apiParam {String} url The url to philips hue servers.
    * @apiParam {Object} body The payload passed on to Philips hue server.
