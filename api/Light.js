@@ -33,11 +33,11 @@ module.exports = (db, app, authenticate) => {
     } */
     const url = req.body.url;
     const payloadcontent = 'clipmessage=' + JSON.stringify(
-      {'bridgeId': process.env.BRIDGE_ID, 'clipCommand':
+      {'bridgeId': req.user.hueBridgeId, 'clipCommand':
         { 'url': url, 'method': 'PUT', 'body': req.body}
       }, null, 4);
 
-    fetch('https://www.meethue.com/api/sendmessage?token=' + process.env.BRIDGE_ACCESS_TOKEN, {
+    fetch('https://www.meethue.com/api/sendmessage?token=' + req.user.hueBridgeToken, {
       method: 'post',
       headers: {
         Accept: 'application/json',
@@ -61,8 +61,8 @@ module.exports = (db, app, authenticate) => {
    */
   app.get('/api/light', authenticate, (req, res) => {
     fetch('https://www.meethue.com/api/getbridge?token=' +
-      process.env.BRIDGE_ACCESS_TOKEN + '&bridgeId=' +
-      process.env.BRIDGE_ID, {
+      req.user.hueBridgeToken + '&bridgeId=' +
+      req.user.hueBridgeId, {
         method: 'get',
         headers: {
           Accept: 'application/json',

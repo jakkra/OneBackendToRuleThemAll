@@ -13,6 +13,8 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
     },
+    hueBridgeId: DataTypes.STRING,
+    hueBridgeToken: DataTypes.STRING,
   },
     {
       instanceMethods: {
