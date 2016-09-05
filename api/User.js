@@ -188,6 +188,7 @@ module.exports = (db, app, authenticate) => {
     res.json({
       success: true,
       message: 'Successfully added hue settings',
+      user: req.user,
     });
   });
 
@@ -201,6 +202,8 @@ module.exports = (db, app, authenticate) => {
    * @apiParam {String} [name] The name of the user.
    * @apiParam {String} [password] The password.
    * @apiParam {bool} [atHome] Set if the user is at home or not.
+   * @apiParam {String} hueBridgeId The Hue bridge id.
+   * @apiParam {String} hueBridgeToken The accessToken for the bridge.
    * @apiSuccess {Bool} success Containing success or failure.
    */
   app.put('/api/user/edit', authenticate, (req, res) => {
@@ -208,11 +211,14 @@ module.exports = (db, app, authenticate) => {
     req.user.name = (req.body.name !== undefined) ? req.body.name : req.user.name;
     req.user.password = (req.body.password !== undefined) ? req.body.password : req.user.password;
     req.user.atHome = (req.body.atHome !== undefined) ? req.body.atHome : req.user.atHome;
+    req.user.hueBridgeId = (req.body.hueBridgeId !== undefined) ? req.body.hueBridgeId : req.user.hueBridgeId;
+    req.user.hueBridgeToken = (req.body.hueBridgeToken !== undefined) ? req.body.hueBridgeToken : req.user.hueBridgeToken;
 
     req.user.save();
     res.json({
       success: true,
       message: 'User successfully updated',
+      user: req.user,
     });
   });
 
