@@ -122,6 +122,7 @@ module.exports = (db, app, authenticate) => {
               success: true,
               message: 'Enjoy your token!',
               token: token,
+              user: user,
             });
           });
         }
