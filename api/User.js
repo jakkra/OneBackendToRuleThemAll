@@ -161,37 +161,6 @@ module.exports = (db, app, authenticate) => {
     });
   });
 
-     /**
-   * @api {post} /api/user/hue Store device token.
-   * @apiGroup User
-   * @apiDescription
-   * Stores Philips Hue Bridge settings
-   * Adds Philips Hue settings to the backend.
-   *
-   * Possible errorcodes:
-   * @apiParam {String} hueBridgeId The Hue bridge id.
-   * @apiParam {String} hueBridgeToken The accessToken for the bridge.
-   * @apiSuccess {Bool} success Containing success or failure.
-   */
-  app.post('/api/user/hue', authenticate, (req, res) => { // TODO change to put or combine with edit user
-    if (!req.body.hueBridgeId || !req.body.hueBridgeToken) {
-      return res.json({
-        success: false,
-        message: 'missing parameters',
-      });
-    }
-
-    // Update user if parameters sent
-    req.user.hueBridgeId = (req.body.hueBridgeId !== undefined) ? req.body.hueBridgeId : req.user.hueBridgeId;
-    req.user.hueBridgeToken = (req.body.hueBridgeToken !== undefined) ? req.body.hueBridgeToken : req.user.hueBridgeToken;
-    req.user.save();
-    res.json({
-      success: true,
-      message: 'Successfully added hue settings',
-      user: req.user,
-    });
-  });
-
    /**
    * @api {put} /api/user/edit Edit an existing user.
    * @apiGroup User
