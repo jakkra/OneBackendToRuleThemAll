@@ -1,13 +1,13 @@
 'use strict';
 
-
   /**
    * @apiDefine User User
    */
 module.exports = (db, app, authenticate) => {
   const jwt = require('jsonwebtoken');
   const bcrypt = require('bcrypt-nodejs');
-
+  const gmailHandler = require('../lib/GmailHandler');
+  gmailHandler.init();
   /**
    * @api {post} /api/user/create Create a new user.
    * @apiGroup User
@@ -78,6 +78,19 @@ module.exports = (db, app, authenticate) => {
    */
   app.get('/api/user', authenticate, (req, res) => {
     return res.json(req.user);
+  });
+
+  /**
+   * @api {get} /api/user/hasUnreadMail hasUnreadMail.
+   * @apiGroup User
+   * @apiDescription
+   * Retreives if User has a new mail.
+   *
+   * Possible errorcodes:
+   * @apiSuccess {Boolean} hasNewMail if user has new mail.
+   */
+  app.get('/api/user/hasUnreadMail', authenticate, (req, res) => {
+    const numUnread = gmailHandler.getNumUnreadMail((numUnread) => res.json(numUnread > 0));
   });
 
    /**
