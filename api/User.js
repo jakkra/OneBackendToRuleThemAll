@@ -90,7 +90,7 @@ module.exports = (db, app, authenticate) => {
    * @apiSuccess {Boolean} hasNewMail if user has new mail.
    */
   app.get('/api/user/hasUnreadMail', authenticate, (req, res) => {
-    const numUnread = gmailHandler.getNumUnreadMail((numUnread) => res.json(numUnread > 0));
+    gmailHandler.getNumUnreadMail((numUnread) => res.json(numUnread > 0));
   });
 
    /**
