@@ -50,6 +50,10 @@ npm start
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/jakkra/OneBackendToRuleThemAll.git)
 
+## Dokku Gmail
+dokku storage:mount automation /var/lib/dokku/data/storage/automation:/app/storage
+
+Add .credentials there.
 
 ## License
 
