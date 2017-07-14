@@ -3,5 +3,5 @@
   "description": "A home automation server",
   "repository": "https://github.com/jakkra/OneBackendToRuleThemAll",
   "logo": "https://node-js-sample.herokuapp.com/node.png",
-  "keywords": ["node", "express", "static"]
+  "keywords": ["node", "express", "static", "Reminder", "Home automation", "Home monitoring"],
 }
