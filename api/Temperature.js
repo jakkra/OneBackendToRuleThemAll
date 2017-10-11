@@ -117,6 +117,11 @@ module.exports = (db, app, authenticate) => {
         }
         res.json({ temperatures: temps, success: true });
       }).catch((error) => res.json({ success: false, error: error + ' ' }));
+    }
+    if (req.query.all === 'true') {
+      req.user.getTemperatures({ order: [['time']] }).then((temperatures) => {
+        res.json({ temperatures: temperatures, success: true });
+      });
     } else {
       req.user.getTemperatures({ order: [['time']] }).then((temperatures) => {
         res.json({ temperatures: averageOutTemperatures(temperatures, 100), success: true });
