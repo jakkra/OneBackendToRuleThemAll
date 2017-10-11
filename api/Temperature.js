@@ -14,7 +14,9 @@ module.exports = (db, app, authenticate) => {
    * Creates a temperature log.
    * Possible errorcodes:
    * @apiParam {String} temperature The temperature to store.
-   * @apiParam {String} [name] The tag on this temperature logging, needed if to separate tempeartures if more than one source.
+   * @apiParam {Datetime} time the temperature was logged
+   * @apiParam {String} [name] The tag on this temperature logging,
+   * needed if to separate tempeartures if more than one source.
    * @apiSuccess {Bool} success Containing success or failure.
    */
   app.post('/api/temperature', authenticate, (req, res) => {
@@ -25,10 +27,21 @@ module.exports = (db, app, authenticate) => {
       });
     }
     let log;
-    if (req.body.name) {
+    if (req.body.name && req.body.time) {
       log = {
         temperature: req.body.temperature,
-        name: req.body.name
+        name: req.body.name,
+        time: req.body.time,
+      };
+    } else if (req.body.name) {
+      log = {
+        temperature: req.body.temperature,
+        name: req.body.name,
+      };
+    } else if (req.body.temperature) {
+      log = {
+        temperature: req.body.temperature,
+        time: req.body.time,
       };
     } else {
       log = { temperature: req.body.temperature };
@@ -91,12 +104,12 @@ module.exports = (db, app, authenticate) => {
 
       req.user.getTemperatures({
         where: {
-          createdAt: {
+          time: {
             $gt: start,
             $lt: end,
           },
         },
-        order: [['createdAt']],
+        order: [['time']],
       }).then((temperatures) => {
         let temps = temperatures;
         if (req.query.limit) {
@@ -105,7 +118,7 @@ module.exports = (db, app, authenticate) => {
         res.json({ temperatures: temps, success: true });
       }).catch((error) => res.json({ success: false, error: error + ' ' }));
     } else {
-      req.user.getTemperatures({ order: [['createdAt']] }).then((temperatures) => {
+      req.user.getTemperatures({ order: [['time']] }).then((temperatures) => {
         res.json({ temperatures: averageOutTemperatures(temperatures, 100), success: true });
       });
     }
@@ -117,7 +130,7 @@ module.exports = (db, app, authenticate) => {
    * @apiDescription
    * Get the latest temperature logging for one sources.
    * @apiParam {String} source The source key for the temperature source.
-   * @apiSuccess {Array} temperatures Array containing the latest logging for the source. 
+   * @apiSuccess {Array} temperatures Array containing the latest logging for the source.
    */
   app.get('/api/temperature/latest', authenticate, (req, res) => {
     if (!req.query.source) {
@@ -127,14 +140,14 @@ module.exports = (db, app, authenticate) => {
       });
     }
     req.user.getTemperatures().findOne({
-        where: {
-          name: req.query.source,
-        },
-        order: [['createdAt']],
-      }).then((temperature) => {
-        console.log(temperature);
-        res.json({ temperature: temperature, success: true });
-      }).catch((error) => res.json({ success: false, error: error + ' ' }));
+      where: {
+        name: req.query.source,
+      },
+      order: [['time']],
+    }).then((temperature) => {
+      console.log(temperature);
+      res.json({ temperature: temperature, success: true });
+    }).catch((error) => res.json({ success: false, error: error + ' ' }));
   });
 };
 
@@ -162,7 +175,7 @@ function averageOutTemperatures(temps, count) {
       innerLoopLimit = temps.length - i - 2;
     }
     for (let j = 0; j < innerLoopLimit; j++) {
-      avgTime = avgTime.add(new Date(temps[i + j].createdAt).getTime());
+      avgTime = avgTime.add(new Date(temps[i + j].time).getTime());
       avgTemp += parseFloat(temps[i + j].temperature);
     }
 
@@ -170,7 +183,7 @@ function averageOutTemperatures(temps, count) {
     avgTemp = avgTemp / innerLoopLimit;
     const element = {
       temperature: Math.round(avgTemp * 10) / 10,
-      createdAt: new Date(avgTime).toUTCString(),
+      time: new Date(avgTime).toUTCString(),
       UserEmail: temps[0].UserEmail,
       id: i,
     };

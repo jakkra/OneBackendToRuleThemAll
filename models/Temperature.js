@@ -5,6 +5,10 @@ module.exports = function(sequelize, DataTypes) {
     name: {
       type: DataTypes.STRING,
       defaultValue: 'inside',
+    },
+    time: {
+      type: DataTypes.DATE,
+      defaultValue: sequelize.NOW
     }
   });
   return Temperature;
