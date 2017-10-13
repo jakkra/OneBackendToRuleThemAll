@@ -117,15 +117,16 @@ module.exports = (db, app, authenticate) => {
         }
         res.json({ temperatures: temps, success: true });
       }).catch((error) => res.json({ success: false, error: error + ' ' }));
-    }
-    if (req.query.all === 'true') {
-      req.user.getTemperatures({ order: [['time']] }).then((temperatures) => {
-        res.json({ temperatures: temperatures, success: true });
-      });
     } else {
-      req.user.getTemperatures({ order: [['time']] }).then((temperatures) => {
-        res.json({ temperatures: averageOutTemperatures(temperatures, 100), success: true });
-      });
+      if (req.query.all === 'true') {
+        req.user.getTemperatures({ order: [['time']] }).then((temperatures) => {
+          res.json({ temperatures: temperatures, success: true });
+        });
+      } else {
+        req.user.getTemperatures({ order: [['time']] }).then((temperatures) => {
+          res.json({ temperatures: averageOutTemperatures(temperatures, 100), success: true });
+        });
+      }
     }
   });
 
@@ -186,12 +187,13 @@ function averageOutTemperatures(temps, count) {
 
     avgTime = avgTime.divide(innerLoopLimit);
     avgTemp = avgTemp / innerLoopLimit;
-    const element = {
-      temperature: Math.round(avgTemp * 10) / 10,
-      time: new Date(avgTime).toUTCString(),
-      UserEmail: temps[0].UserEmail,
-      id: i,
-    };
+
+    const element = temps[i];
+    element.temperature = Math.round(avgTemp * 10) / 10,
+    element.time = new Date(avgTime).toISOString(),
+    element.UserEmail = temps[0].UserEmail,
+    element.id = i,
+
     result.push(element);
     avgTemp = 0;
     avgTime = bigInt.zero;
