@@ -155,8 +155,21 @@ module.exports = (db, app, authenticate) => {
       res.json({ temperature: temperature, success: true });
     }).catch((error) => res.json({ success: false, error: error + ' ' }));
   });
-};
 
+ /**
+   * @api {get} /api/temperature/sources List all temperature sources.
+   * @apiGroup Temperature
+   * @apiDescription
+   * List all temperature sources
+   * @apiSuccess {Array} sources Array containing all temperature logging sources.
+   */
+  app.get('/api/temperature/sources', authenticate, (req, res) => {
+    req.user.getTemperatures().then((temperatures) => {
+      const sources = Array.from(new Set(temperatures.map(temperature => temperature.name)));
+      res.json({ sources: sources, success: true });
+    }).catch((error) => res.json({ success: false, error: error + ' ' }));
+  });
+};
 
  /**
  * Groups temperatures and calculates an average of each group. The loss of accuracy
