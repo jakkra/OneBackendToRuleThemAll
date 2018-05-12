@@ -51,12 +51,14 @@ module.exports = (db, app, authenticate) => {
 
     db.Moisture.create(log).then((createdMoistureLog) => {
       req.user.addMoisture(createdMoistureLog).then(() => {
-        if (createdMoistureLog.moisture < 80) {
+        if (createdMoistureLog.moisture < 70) {
           req.user.getMoistures({
             order: [['createdAt', 'DESC']],
-            limit: 2,
+            limit: 5,
           }).then((moistures) => {
-            if (moistures.length > 1 && moistures[0].moisture < 70 && moistures[1].moisture >= 70) {
+            const previousAboveThreshold = moistures.slice(1).reduce((res, item) => item.moisture >= 70 ? res + 1 : res, 0);
+            if (moistures.length > 1 && previousAboveThreshold === 4
+              && moistures[0].moisture < 70 && moistures[1].moisture >= 70) {
               sendMoistureNotification(createdMoistureLog, req);
             }
           }).catch((error) => console.log(error));
