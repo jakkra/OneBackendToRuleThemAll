@@ -1,5 +1,9 @@
 'use strict';
 
+const gcm = require('node-gcm');
+
+const sender = new gcm.Sender(process.env.SERVER_GCM_API_KEY);
+
   /**
    * @apiDefine Moisture
    */
@@ -18,7 +22,7 @@ module.exports = (db, app, authenticate) => {
    * @apiSuccess {Bool} success Containing success or failure.
    */
   app.post('/api/moisture', authenticate, (req, res) => {
-    if (!req.body.moisture) {
+    if (req.body.moisture === undefined) {
       return res.json({
         success: false,
         message: 'Invalid parameters.',
@@ -47,6 +51,17 @@ module.exports = (db, app, authenticate) => {
 
     db.Moisture.create(log).then((createdMoistureLog) => {
       req.user.addMoisture(createdMoistureLog).then(() => {
+        if (createdMoistureLog.moisture < 80) {
+          req.user.getMoistures({
+            order: [['createdAt', 'DESC']],
+            limit: 2,
+          }).then((moistures) => {
+            if (moistures.length > 1 && moistures[0].moisture < 70 && moistures[1].moisture >= 70) {
+              sendMoistureNotification(createdMoistureLog, req);
+            }
+          }).catch((error) => console.log(error));
+        }
+
         res.json({
           success: true,
           message: 'Successfully added new moisture level logging.',
@@ -65,7 +80,7 @@ module.exports = (db, app, authenticate) => {
    */
   app.get('/api/moisture', authenticate, (req, res) => {
     req.user.getMoistures({
-      order: [['time']],
+      order: [['createdAt', 'DESC']],
     }).then((moistures) => {
       res.json({ moisture: moistures, success: true });
     }).catch((error) => res.json({ success: false, error: error + ' ' }));
@@ -107,8 +122,28 @@ module.exports = (db, app, authenticate) => {
    */
   app.get('/api/moisture/sources', authenticate, (req, res) => {
     req.user.getMoistures().then((moistures) => {
-      const sources = Array.from(new Set(moistures.map(moisture => moisture.name)));
+      const sources = Array.from(new Set(moistures.map((moisture) => moisture.name)));
       res.json({ sources: sources, success: true });
     }).catch((error) => res.json({ success: false, error: error + ' ' }));
   });
 };
+
+function sendMoistureNotification(moistureLog, req) {
+  console.log('Sending moisture sendMoistureNotification');
+  const message = new gcm.Message({
+    data: {
+      type: 'moisture',
+      title: 'Dags att vattna ' + moistureLog.name,
+      message: 'Fuktigheten är: ' + moistureLog.moisture + ' %',
+    },
+    collapseKey: 'moisture',
+  });
+
+  sender.send(message, { to: req.user.deviceToken }, function(err, response) {
+    if (err) {
+      console.error(err);
+    } else {
+      console.log(response);
+    }
+  });
+}
