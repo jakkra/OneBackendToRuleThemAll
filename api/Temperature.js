@@ -81,6 +81,10 @@ module.exports = (db, app, authenticate) => {
    * @apiSuccess {Array} temperatures List of tempareture loggings.
    */
   app.get('/api/temperature', authenticate, (req, res) => {
+    let source = 'inside';
+    if (req.query.source) {
+      source = req.query.source;
+    }
     if (req.query.count && req.query.unit) {
       let end = new Date();
       if (req.query.endDate) {
@@ -104,6 +108,7 @@ module.exports = (db, app, authenticate) => {
 
       req.user.getTemperatures({
         where: {
+          source: source,
           time: {
             $gt: start,
             $lt: end,
@@ -119,11 +124,11 @@ module.exports = (db, app, authenticate) => {
       }).catch((error) => res.json({ success: false, error: error + ' ' }));
     } else {
       if (req.query.all === 'true') {
-        req.user.getTemperatures({ order: [['time']] }).then((temperatures) => {
+        req.user.getTemperatures({ where: { name: source }, order: [['time']] }).then((temperatures) => {
           res.json({ temperatures: temperatures, success: true });
         });
       } else {
-        req.user.getTemperatures({ order: [['time']] }).then((temperatures) => {
+        req.user.getTemperatures({ where: { name: source }, order: [['time']] }).then((temperatures) => {
           res.json({ temperatures: averageOutTemperatures(temperatures, 100), success: true });
         });
       }
@@ -145,11 +150,12 @@ module.exports = (db, app, authenticate) => {
         message: 'Missing parameter source.',
       });
     }
-    req.user.getTemperatures().findOne({
+    req.user.getTemperatures({
       where: {
         name: req.query.source,
       },
-      order: [['time']],
+      limit: 1,
+      order: [['time', 'DESC']],
     }).then((temperature) => {
       console.log(temperature);
       res.json({ temperature: temperature, success: true });
@@ -165,7 +171,7 @@ module.exports = (db, app, authenticate) => {
    */
   app.get('/api/temperature/sources', authenticate, (req, res) => {
     req.user.getTemperatures().then((temperatures) => {
-      const sources = Array.from(new Set(temperatures.map(temperature => temperature.name)));
+      const sources = Array.from(new Set(temperatures.map((temperature) => temperature.name)));
       res.json({ sources: sources, success: true });
     }).catch((error) => res.json({ success: false, error: error + ' ' }));
   });
