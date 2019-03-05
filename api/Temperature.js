@@ -108,7 +108,7 @@ module.exports = (db, app, authenticate) => {
 
       req.user.getTemperatures({
         where: {
-          source: source,
+          name: source,
           time: {
             $gt: start,
             $lt: end,
