@@ -74,7 +74,6 @@ require('./api/Temperature')(db, app, authenticate);
 require('./api/Light')(db, app, authenticate);
 require('./api/Surveillance')(db, app, authenticate);
 require('./api/Moisture')(db, app, authenticate);
-require('./api/Apod')(db, app, authenticate);
 
 
 db.sequelize.sync().then(function() {
