@@ -78,14 +78,50 @@ module.exports = (db, app, authenticate) => {
    * @apiDescription
    * Lists all moisture loggings.
    * Possible errorcodes:
+   * @apiParam {String} [endDate=now] The date of the last moisture logging.
+   * @apiParam {String} [unit] The unit to work with. One of: { days, hours, minutes }
+   * @apiParam {String} [count] The number of units backwards from endDate.
    * @apiSuccess {Array} moisture List of mositure loggings.
    */
   app.get('/api/moisture', authenticate, (req, res) => {
-    req.user.getMoistures({
-      order: [['createdAt', 'DESC']],
-    }).then((moistures) => {
-      res.json({ moisture: moistures, success: true });
-    }).catch((error) => res.json({ success: false, error: error + ' ' }));
+    if (req.query.count && req.query.unit) {
+      let end = new Date();
+      if (req.query.endDate) {
+        end = new Date(req.query.endDate);
+      }
+      const start = new Date(end);
+      switch (req.query.unit) {
+        case 'days':
+          start.setDate(start.getDate() + 1 - req.query.count);
+          start.setHours(start.getHours() - 24);
+          break;
+        case 'hours':
+          start.setHours(start.getHours() - req.query.count);
+          break;
+        case 'minutes':
+          start.setMinutes(start.getMinutes() - req.query.count);
+          break;
+        default:
+          return res.json({ success: false, error: 'Invalid params' });
+      }
+      req.user.getMoistures({
+        where: {
+          createdAt: {
+            $gt: start,
+            $lt: end,
+          },
+        },
+        order: [['createdAt', 'DESC']],
+      }).then((moistures) => {
+        res.json({ moisture: moistures, success: true });
+      }).catch((error) => res.json({ success: false, error: error + ' ' }));
+    } else {
+      req.user.getMoistures({
+        order: [['createdAt', 'DESC']],
+      }).then((moistures) => {
+        res.json({ moisture: moistures, success: true });
+      }).catch((error) => res.json({ success: false, error: error + ' ' }));
+    }
   });
 
   /**
