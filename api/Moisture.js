@@ -111,13 +111,13 @@ module.exports = (db, app, authenticate) => {
             $lt: end,
           },
         },
-        order: [['createdAt', 'DESC']],
+        order: [['createdAt', 'ASC']],
       }).then((moistures) => {
         res.json({ moisture: moistures, success: true });
       }).catch((error) => res.json({ success: false, error: error + ' ' }));
     } else {
       req.user.getMoistures({
-        order: [['createdAt', 'DESC']],
+        order: [['createdAt', 'ASC']],
       }).then((moistures) => {
         res.json({ moisture: moistures, success: true });
       }).catch((error) => res.json({ success: false, error: error + ' ' }));
