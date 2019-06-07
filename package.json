@@ -7,7 +7,8 @@
   },
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "debug": "node --inspect index.js"
   },
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",

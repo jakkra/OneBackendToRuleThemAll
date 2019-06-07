@@ -4,6 +4,8 @@ const gcm = require('node-gcm');
 
 const sender = new gcm.Sender(process.env.SERVER_GCM_API_KEY);
 
+const triggerMoistureNotLevel = 30;
+
   /**
    * @apiDefine Moisture
    */
@@ -51,19 +53,9 @@ module.exports = (db, app, authenticate) => {
 
     db.Moisture.create(log).then((createdMoistureLog) => {
       req.user.addMoisture(createdMoistureLog).then(() => {
-        if (createdMoistureLog.moisture < 70) {
-          req.user.getMoistures({
-            order: [['createdAt', 'DESC']],
-            limit: 5,
-          }).then((moistures) => {
-            const previousAboveThreshold = moistures.slice(1).reduce((res, item) => item.moisture >= 70 ? res + 1 : res, 0);
-            if (moistures.length > 1 && previousAboveThreshold === 4
-              && moistures[0].moisture < 70 && moistures[1].moisture >= 70) {
-              sendMoistureNotification(createdMoistureLog, req);
-            }
-          }).catch((error) => console.log(error));
+        if (shouldSendMoistureNotification(createdMoistureLog, req)) {
+          sendMoistureNotification(createdMoistureLog, req);
         }
-
         res.json({
           success: true,
           message: 'Successfully added new moisture level logging.',
@@ -165,6 +157,49 @@ module.exports = (db, app, authenticate) => {
     }).catch((error) => res.json({ success: false, error: error + ' ' }));
   });
 };
+
+function shouldSendMoistureNotification(createdMoistureLog, req) {
+  const oneWeekBack = new Date();
+  oneWeekBack.setDate(oneWeekBack.getDate() + 1 - 7);
+  req.user.getMoistures({
+    where: {
+      name: createdMoistureLog.name,
+      createdAt: {
+        $gt: oneWeekBack,
+      },
+    },
+    order: [['createdAt', 'DESC']]
+  }).then((last7daysMoistures) => {
+    const moisturesInPercent = convertMoisturesToPercent(last7daysMoistures);
+    const createdLogInPercent = moisturesInPercent[0];
+    const previousAboveThreshold = moisturesInPercent.slice(1, 3).reduce((res, item) => {
+      return item.moisture >= triggerMoistureNotLevel ? res + 1 : res;
+    }, 0);
+    if (last7daysMoistures.length > 1 && previousAboveThreshold === 2
+      && createdLogInPercent.moisture < triggerMoistureNotLevel
+      && moisturesInPercent[1].moisture >= triggerMoistureNotLevel) {
+      sendMoistureNotification(createdLogInPercent, req);
+    }
+  }).catch((error) => console.log(error));
+}
+
+function convertMoisturesToPercent(moistures) {
+  const minMoisture = Math.min(...moistures.map((o) => o.moisture), 9999);
+  const maxMoisture = Math.max(...moistures.map((o) => o.moisture), 0);
+
+  if (moistures && moistures.length > 1) {
+    return moistures.map((m) => {
+      const numerator = m.moisture - minMoisture;
+      const denominator = maxMoisture - minMoisture;
+      if (denominator !== 0) {
+        m.moisture = Math.round(100 * (numerator / denominator));
+      }
+      return m;
+    });
+  }
+
+  return moistures;
+}
 
 function sendMoistureNotification(moistureLog, req) {
   console.log('Sending moisture sendMoistureNotification');
