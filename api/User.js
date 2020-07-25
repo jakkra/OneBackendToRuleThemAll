@@ -93,6 +93,19 @@ module.exports = (db, app, authenticate) => {
     gmailHandler.getNumUnreadMail((numUnread) => res.json(numUnread > 0));
   });
 
+  /**
+   * @api {get} /api/user/numUndreadMail numUndreadMail.
+   * @apiGroup User
+   * @apiDescription
+   * Retreives number of mail for a User.
+   *
+   * Possible errorcodes:
+   * @apiSuccess {Number} numUndreadMail number of unread emails.
+   */
+  app.get('/api/user/numUndreadMail', authenticate, (req, res) => {
+    gmailHandler.getNumUnreadMail((numUnread) => res.json(numUnread));
+  });
+
    /**
    * @api {post} /api/user/authenticate Authenticate a user.
    * @apiGroup User
