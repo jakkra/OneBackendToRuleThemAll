@@ -28,7 +28,7 @@
     "npm": "^3.10.5",
     "pg": "^4.5.6",
     "pg-hstore": "^2.3.2",
-    "sequelize": "^3.23.4"
+    "sequelize": "^6.3.5"
   },
   "repository": {
     "type": "git",
